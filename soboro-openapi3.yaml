@@ -1,0 +1,1528 @@
+openapi: 3.0.1
+info:
+  title: Soboro API
+  description: Soboro API문서 입니다.
+  contact:
+    name: Soboro
+    url: http://localhost:8080
+    email: soboroservice@soboro.com
+  license:
+    name: MIT Licence
+    url: https://opensource.org/licenses/MIT
+  version: Ver.1.1.0
+servers:
+  - url: http://localhost:8080
+    description: Generated server url
+tags:
+  - name: test
+    description: 테스트 데이터 컨트롤러
+  - name: ai
+    description: 인공지능 관련 컨트롤러
+  - name: content
+    description: 컨설팅 컨텐츠 관련 컨트롤러
+  - name: user
+    description: 회원 관련 컨트롤러
+  - name: consult
+    description: 컨설팅 내용 관련 컨트롤러
+  - name: auth
+    description: 로그인, 로그아웃 API
+paths:
+  /api/user:
+    get:
+      tags:
+        - user
+      summary: 회원 정보 반환
+      description: 회원 정보 반환 API
+      operationId: getUserInfo
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponseDto'
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/RestApiResponse'
+        '400':
+          description: BAD REQUEST
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        USER_402:
+          description: '"DB 회원 정보 없음'
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+    post:
+      tags:
+        - user
+      summary: 회원 가입
+      description: 회원 가입 API
+      operationId: registerUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequestDto'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponseDto'
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/RestApiResponse'
+        '400':
+          description: BAD REQUEST
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        USER_401:
+          description: 회원 ID중복
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        USER_500:
+          description: DB 등록 실패
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - user
+      summary: 회원 정보 삭제
+      description: 회원 정보 삭제 API
+      operationId: deleteUserInfo
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserModifyDto'
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/RestApiResponse'
+        '400':
+          description: BAD REQUEST
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        USER_501:
+          description: DB 회원정보 삭제 실패
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+    patch:
+      tags:
+        - user
+      summary: 회원 정보 수정
+      description: 회원 정보 수정 API
+      operationId: modifyUserInfo
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserModifyDto'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserModifyDto'
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/RestApiResponse'
+        '400':
+          description: BAD REQUEST
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        USER_501:
+          description: DB 수정 실패
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+  /api/user/sendnumber/save:
+    post:
+      tags:
+        - user
+      summary: 회원가입 인증번호 메일 전송
+      description: '회원가입 이메일 인증번호 전송 API : 파라미터에 이메일을 입력하세요. (ex. email@naver.com)'
+      operationId: sendNumberJoin
+      parameters:
+        - name: email
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 회원가입 인증번호 전송됨
+          content:
+            application/json:
+              schema:
+                type: string
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/RestApiResponse'
+        '400':
+          description: BAD REQUEST
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        USER_401:
+          description: 이메일 중복됨
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/user/sendnumber/findpass:
+    post:
+      tags:
+        - user
+      summary: 비밀번호 찾기 인증번호 메일 전송
+      description: '비밀번호 찾기 인증번호 전송 API : 파라미터에 이메일을 입력하세요. (ex. email@naver.com)'
+      operationId: sendNumberFindPass
+      parameters:
+        - name: email
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 인증번호 전송됨
+          content:
+            application/json:
+              schema:
+                type: string
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/RestApiResponse'
+        '400':
+          description: BAD REQUEST
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/user/sendnumber/findid:
+    post:
+      tags:
+        - user
+      summary: 아이디 찾기 메일 전송
+      description: '아이디 찾기 인증번호 전송 API : 파라미터에 이메일을 입력하세요. (ex. email@naver.com)'
+      operationId: sendNumberFindId
+      parameters:
+        - name: email
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 인증번호 전송됨
+          content:
+            application/json:
+              schema:
+                type: string
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/RestApiResponse'
+        '400':
+          description: BAD REQUEST
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/user/duplicate/id:
+    post:
+      tags:
+        - user
+      summary: 회원 아이디 중복 확인
+      description: 회원 아이디 중복 확인 API
+      operationId: checkUserId
+      parameters:
+        - name: idCheck
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/RestApiResponse'
+        '400':
+          description: BAD REQUEST
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        USER_401:
+          description: 회원 ID중복
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/user/certification:
+    post:
+      tags:
+        - user
+      summary: 회원가입, ID찾기 인증번호 확인
+      description: 인증번호 확인 API
+      operationId: certificateNumber
+      parameters:
+        - name: email
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: code
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/RestApiResponse'
+        '400':
+          description: BAD REQUEST
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        USER_411:
+          description: 인증 번호가 유효하지 않음.
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/user/certification/findpass:
+    post:
+      tags:
+        - user
+      summary: 비밀번호 찾기 인증번호 확인
+      description: 인증번호 확인 API
+      operationId: certificateNumberFindPass
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: email
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: code
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/RestApiResponse'
+        '400':
+          description: BAD REQUEST
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        USER_411:
+          description: 인증 번호가 유효하지 않음.
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/consult/save:
+    post:
+      tags:
+        - consult
+      summary: 상담정보 저장
+      description: 상담 정보를 저장한다
+      operationId: consultingSave
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConsultingRequestDto'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsultingResponseDto'
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/RestApiResponse'
+        '400':
+          description: BAD REQUEST
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+  /api/consult/save/text:
+    post:
+      tags:
+        - content
+      summary: 컨설팅 컨텐츠 저장
+      description: 컨설팅 컨텐츠를 저장한다
+      operationId: contentSaveTest
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContentRequestDto'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int32
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/RestApiResponse'
+        '400':
+          description: BAD REQUEST
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/auth/logout:
+    post:
+      tags:
+        - auth
+      summary: 일반 로그아웃
+      description: 일반 로그아웃 API
+      operationId: logout
+      responses:
+        '200':
+          description: 'OK : 성공'
+          content:
+            application/json:
+              schema:
+                type: string
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/RestApiResponse'
+        '400':
+          description: 'BAD REQUEST : 잘못된 요청'
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 'NOT FOUND : 잘못된 서버 경로 요청'
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 'INTERNAL SERVER ERROR : 서버 에러'
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+  /api/auth/login:
+    post:
+      tags:
+        - auth
+      summary: 일반 로그인
+      description: 일반 로그인 API
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthReqModel'
+        required: true
+      responses:
+        '200':
+          description: 'OK : 성공'
+          content:
+            application/json:
+              schema:
+                type: string
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/RestApiResponse'
+        '400':
+          description: 'BAD REQUEST : 잘못된 요청'
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 'NOT FOUND : 잘못된 서버 경로 요청'
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 'INTERNAL SERVER ERROR : 서버 에러'
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        USER_400:
+          description: '로그인 실패 : ID, PW 확인'
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/user/change/pass:
+    patch:
+      tags:
+        - user
+      summary: 비밀번호 변경
+      description: 비밀번호 변경 API
+      operationId: changePassword
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthReqModel'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/RestApiResponse'
+        '400':
+          description: BAD REQUEST
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/consult/save/final/{consultingNo}:
+    patch:
+      tags:
+        - consult
+      summary: 상담 테이블 수정 (비디오 경로 설정)
+      description: 상담 끝났을 때 비디오 경로를 수정한다.
+      operationId: consultingSaveFinal
+      parameters:
+        - name: consultingNo
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConsultingRequestDto'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsultingResponseDto'
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/RestApiResponse'
+        '400':
+          description: BAD REQUEST
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+  /api/test/tokenheader:
+    get:
+      tags:
+        - test
+      summary: AUTH HEADER 테스트
+      description: HEADER -> body형태로 토큰, ID반환 API
+      operationId: testAuthHeader
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/RestApiResponseObject'
+        '400':
+          description: BAD REQUEST
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/RestApiResponseObject'
+        '401':
+          description: NOT_AUTHORIZATION
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/RestApiResponseObject'
+        '404':
+          description: NOT FOUND
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/RestApiResponseObject'
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/RestApiResponseObject'
+      security:
+        - bearerAuth: []
+  /api/test/response/single:
+    get:
+      tags:
+        - test
+      summary: 단일 응답은 이렇게 반환됩니다.
+      description: 객체 응답 코드
+      operationId: testResponseSingleData
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ConsultingListDto'
+        '400':
+          description: BAD REQUEST
+          content:
+            '*/*':
+              schema:
+                type: object
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            '*/*':
+              schema:
+                type: object
+  /api/test/response/list:
+    get:
+      tags:
+        - test
+      summary: 리스트 응답은 이렇게 반환됩니다.
+      description: 객체 응답 코드
+      operationId: testResponseListData
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConsultingListDto'
+        '400':
+          description: BAD REQUEST
+          content:
+            '*/*':
+              schema:
+                type: object
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            '*/*':
+              schema:
+                type: object
+  /api/test/error/user401:
+    get:
+      tags:
+        - test
+      summary: 커스텀 응답은 이렇게 반환됩니다.
+      description: 에러 응답 코드
+      operationId: testCustomErrorException
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ConsultingListDto'
+        '400':
+          description: BAD REQUEST
+          content:
+            '*/*':
+              schema:
+                type: object
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            '*/*':
+              schema:
+                type: object
+  /api/test/error/exception:
+    get:
+      tags:
+        - test
+      summary: 일반 응답은 이렇게 반환됩니다.
+      description: 에러 응답 코드
+      operationId: testNormalErrorException
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ConsultingListDto'
+        '400':
+          description: BAD REQUEST
+          content:
+            '*/*':
+              schema:
+                type: object
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            '*/*':
+              schema:
+                type: object
+  /api/test/consult/list/noauth:
+    get:
+      tags:
+        - test
+      summary: 컨설팅 리스트 출력 (회원정보X)
+      description: 컨설팅 정보에 대한 리스트를 제공한다 page=0,1... size=10 userno=1 sort는 지우고 요청할 것
+      operationId: testNoTokenGetConsultingList
+      parameters:
+        - name: pageable
+          in: query
+          description: 페이지 관련
+          required: true
+          schema:
+            $ref: '#/components/schemas/Pageable'
+        - name: userno
+          in: query
+          description: 회원 식별번호
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConsultingListDto'
+        '400':
+          description: BAD REQUEST
+          content:
+            '*/*':
+              schema:
+                type: object
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            '*/*':
+              schema:
+                type: object
+  /api/test/call:
+    get:
+      tags:
+        - test
+      summary: 서버 응답 테스트
+      description: 서버 응답 테스트 API
+      operationId: testServerCall
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+        '400':
+          description: BAD REQUEST
+          content:
+            '*/*':
+              schema:
+                type: object
+        '404':
+          description: NOT FOUND
+          content:
+            '*/*':
+              schema:
+                type: object
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            '*/*':
+              schema:
+                type: object
+  /api/consult/list:
+    get:
+      tags:
+        - consult
+      summary: 컨설팅 리스트 출력
+      description: 컨설팅 정보에 대한 리스트를 제공한다
+      operationId: consultingAll
+      parameters:
+        - name: page
+          in: query
+          description: 페이지 번호 (0..N)
+          required: false
+          content:
+            '*/*':
+              schema:
+                type: Integer
+                default: '0'
+        - name: size
+          in: query
+          description: 페이지 크기
+          required: false
+          content:
+            '*/*':
+              schema:
+                type: Integer
+                default: '10'
+        - name: sort
+          in: query
+          description: >-
+            Sorting criteria in the format: property,(asc|desc). Default sort
+            order is ascending. Multiple sort criteria are supported.
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsultingListDto'
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/RestApiResponse'
+        '400':
+          description: BAD REQUEST
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+  /api/consult/list/search/{consultingVisitClass}:
+    get:
+      tags:
+        - consult
+      summary: 컨설팅 리스트 검색
+      description: 검색 후 컨설팅 리스트를 제공한다
+      operationId: consultingSearch
+      parameters:
+        - name: consultingVisitClass
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: 페이지 번호 (0..N)
+          required: false
+          content:
+            '*/*':
+              schema:
+                type: Integer
+                default: '0'
+        - name: size
+          in: query
+          description: 페이지 크기
+          required: false
+          content:
+            '*/*':
+              schema:
+                type: Integer
+                default: '10'
+        - name: sort
+          in: query
+          description: >-
+            Sorting criteria in the format: property,(asc|desc). Default sort
+            order is ascending. Multiple sort criteria are supported.
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsultingListDto'
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/RestApiResponse'
+        '400':
+          description: BAD REQUEST
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+  /api/consult/detail:
+    get:
+      tags:
+        - consult
+      summary: 컨설팅 디테일 출력
+      description: 컨설팅 상세 정보를 제공한다
+      operationId: consultingDetail
+      parameters:
+        - name: consultingNo
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConsultingDetailDto'
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/RestApiResponse'
+        '400':
+          description: BAD REQUEST
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+  /api/consult/content/findall:
+    get:
+      tags:
+        - content
+      summary: 컨설팅 컨텐츠 조회
+      description: 컨설팅 컨텐츠를 조회한다
+      operationId: findAllTest
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ContentDto'
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/RestApiResponse'
+        '400':
+          description: BAD REQUEST
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/consult/content/detail:
+    get:
+      tags:
+        - content
+      summary: 컨설팅 컨텐츠 출력
+      description: 컨설팅 컨텐츠를 출력한다
+      operationId: contentDetail
+      parameters:
+        - name: consultingNo
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: page
+          in: query
+          description: 페이지 번호 (0..N)
+          required: false
+          content:
+            '*/*':
+              schema:
+                type: Integer
+                default: '0'
+        - name: size
+          in: query
+          description: 페이지 크기
+          required: false
+          content:
+            '*/*':
+              schema:
+                type: Integer
+                default: '10'
+        - name: sort
+          in: query
+          description: >-
+            Sorting criteria in the format: property,(asc|desc). Default sort
+            order is ascending. Multiple sort criteria are supported.
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContentDto'
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/RestApiResponse'
+        '400':
+          description: BAD REQUEST
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/ai/tts:
+    get:
+      tags:
+        - ai
+      summary: TTS
+      description: tts 파일 경로 호출 API
+      operationId: getTTSFilePath
+      parameters:
+        - name: address
+          in: query
+          required: true
+          schema:
+            type: string
+        - in: query
+          description: tts 파일 경로 주소
+      responses:
+        '200':
+          description: 'OK : 성공'
+          content:
+            application/json:
+              schema:
+                type: string
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/RestApiResponse'
+        '400':
+          description: 'BAD REQUEST : 잘못된 요청'
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 'NOT FOUND : 잘못된 서버 경로 요청'
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 'INTERNAL SERVER ERROR : 서버 에러'
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    UserRequestDto:
+      required:
+        - userEmail
+        - userName
+        - userPhone
+      type: object
+      properties:
+        userId:
+          type: string
+          description: 회원 아이디
+        userPassword:
+          type: string
+          description: 회원 비밀번호
+        userName:
+          type: string
+          description: 회원 이름
+          example: testName
+        userEmail:
+          type: string
+          description: 회원 이메일
+          example: testEmail@domain.com
+        userPhone:
+          type: string
+          description: 회원 휴대폰 번호
+          example: '01012345678'
+        userGender:
+          type: string
+          description: 회원 성별
+          example: M
+        userTerms:
+          type: boolean
+          description: 회원 이용 약관 동의
+        userActive:
+          type: boolean
+          description: 회원 활성화 여부
+      description: 회원 가입 요청 DTO
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          description: 응답시간
+          format: date-time
+        error:
+          type: string
+          description: 에러코드
+        message:
+          type: string
+          description: 상태메세지
+      description: 전역 에러 반환 DTO
+    UserResponseDto:
+      type: object
+      properties:
+        userNo:
+          type: integer
+          description: 회원 식별번호
+          format: int32
+        userId:
+          type: string
+          description: 회원 아이디
+        userName:
+          type: string
+          description: 회원 이름
+        userEmail:
+          type: string
+          description: 회원 이메일
+          example: testEmail@email.com
+        userPhone:
+          type: string
+          description: 회원 휴대전화번호
+          example: '01012345678'
+        userGender:
+          type: string
+          description: 회원 성별
+          example: M
+        userTerms:
+          type: boolean
+          description: 회원 이용약관 동의
+        userCreateTime:
+          type: string
+          description: 회원 가입 일시
+        userAuthType:
+          type: string
+          description: 회원 인증 방식
+        userActive:
+          type: boolean
+          description: 회원 활성화 여부
+      description: 회원 정보 반환 DTO
+    RestApiResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          description: 응답 시간
+          format: date-time
+        message:
+          type: string
+          description: 상태 메세지
+          example: 상태메세지
+        data:
+          type: object
+          description: 응답 데이터
+      description: 전역 응답 반환 DTO
+    ConsultingRequestDto:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        consultingNo:
+          type: integer
+          description: 상담 식별번호
+          format: int32
+        consultingVisitDate:
+          type: string
+          description: 상담 방문 일자
+          format: date-time
+        consultingVisitPlace:
+          type: string
+          description: 상담 방문 장소
+        consultingVisitClass:
+          type: string
+          description: 상담 방문 장소 분류
+        videoLocation:
+          type: string
+          description: 비디오 저장 위치
+      description: 상담 내역 요청 DTO
+    User:
+      type: object
+      properties:
+        userId:
+          maxLength: 64
+          minLength: 0
+          type: string
+        userName:
+          maxLength: 100
+          minLength: 0
+          type: string
+        userEmail:
+          maxLength: 512
+          minLength: 0
+          type: string
+        userPhone:
+          maxLength: 50
+          minLength: 0
+          type: string
+        userGender:
+          maxLength: 1
+          minLength: 0
+          type: string
+        userTerms:
+          type: boolean
+        providerType:
+          type: string
+          enum:
+            - GOOGLE
+            - FACEBOOK
+            - NAVER
+            - KAKAO
+            - LOCAL
+        roleType:
+          type: string
+          enum:
+            - USER
+            - ADMIN
+            - GUEST
+        createdAt:
+          type: string
+          format: date-time
+        userActive:
+          type: boolean
+      description: 회원 정보
+    ConsultingResponseDto:
+      type: object
+      properties:
+        consultingNo:
+          type: integer
+          description: 상담 식별번호
+          format: int32
+        consultingVisitDate:
+          type: string
+          description: 상담 방문 일자
+          format: date-time
+        consultingUserNo:
+          type: integer
+          description: 상담 회원 식별번호
+          format: int32
+        consultingVisitPlace:
+          type: string
+          description: 상담 방문 장소
+        consultingVisitClass:
+          type: string
+          description: 상담 방문 장소 분류
+        videoLocation:
+          type: string
+          description: 비디오 저장 위치
+      description: 상담 내역 응답 DTO
+    ContentRequestDto:
+      type: object
+      properties:
+        consultingNo:
+          type: integer
+          description: 상담 식별번호
+          format: int32
+        contentText:
+          type: string
+          description: 상담 텍스트 내용
+        contentSpeaker:
+          type: boolean
+          description: 상담 텍스트 발화자
+      description: 상담 텍스트 요청 DTO
+    AuthReqModel:
+      type: object
+      properties:
+        id:
+          type: string
+          description: 아이디
+        password:
+          type: string
+          description: 비밀번호
+      description: 로그인 아이디, 비밀번호
+    UserModifyDto:
+      type: object
+      properties:
+        userId:
+          type: string
+          description: 회원 아이디
+        userName:
+          type: string
+          description: 회원 이름
+          example: testName
+        userEmail:
+          type: string
+          description: 회원 이메일
+          example: testEmail@domain.com
+        userPhone:
+          type: string
+          description: 회원 휴대폰 번호
+          example: '01012345678'
+        userActive:
+          type: boolean
+          description: 회원 활성화 여부
+      description: 회원 수정 요청 DTO
+    RestApiResponseObject:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          description: 응답 시간
+          format: date-time
+        message:
+          type: string
+          description: 상태 메세지
+          example: 상태메세지
+        data:
+          type: object
+          description: 응답 데이터
+      description: 전역 응답 반환 DTO
+    ConsultingListDto:
+      type: object
+      properties:
+        consultingNo:
+          type: integer
+          description: 상담내역 식별번호
+          format: int32
+        consultingVisitPlace:
+          type: string
+          description: 상담 장소
+        consultingVisitDate:
+          type: string
+          description: 상담 일자
+        consultingVisitClass:
+          type: string
+          description: 상담 장소 분류
+      description: 상담내역 리스트 DTO
+    Pageable:
+      type: object
+      properties:
+        page:
+          minimum: 0
+          type: integer
+          format: int32
+        size:
+          minimum: 1
+          type: integer
+          format: int32
+        sort:
+          type: array
+          items:
+            type: string
+    ConsultingDetailDto:
+      type: object
+      properties:
+        consultingNo:
+          type: integer
+          description: 상담 식별번호
+          format: int32
+        consultingVisitPlace:
+          type: string
+          description: 상담 방문 장소
+        consultingVisitDate:
+          type: string
+          description: 상담 방문 일자
+        consultingVisitClass:
+          type: string
+          description: 상담 방문 장소 분류
+        videoLocation:
+          type: string
+          description: 비디오 저장 위치
+      description: 상담 세부내역 DTO
+    ContentDto:
+      type: object
+      properties:
+        consultingNo:
+          type: integer
+          description: 상담 식별번호
+          format: int32
+        contentText:
+          type: string
+          description: 상담 텍스트 내용
+        contentSpeaker:
+          type: boolean
+          description: 상담 텍스트 발화자
+      description: 상담 텍스트 DTO
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
